@@ -1,10 +1,9 @@
 [build]
-  publish = "."
+publish = "."
 
 [functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
+directory = "netlify/functions"
+node_bundler = "esbuild"
 
 [build.environment]
-  NODE_VERSION = "18"
-``
+NODE_VERSION = 18
