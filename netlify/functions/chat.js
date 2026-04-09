@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export async function handler(event) {
   try {
     const apiKey = process.env.CLAUDE_API_KEY;
@@ -32,8 +30,8 @@ export async function handler(event) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText);
+      const text = await response.text();
+      throw new Error(text);
     }
 
     const data = await response.json();
@@ -68,4 +66,3 @@ function cors() {
     "Content-Type": "application/json",
   };
 }
-``
