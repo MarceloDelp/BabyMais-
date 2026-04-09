@@ -1,6 +1,7 @@
 export async function handler(event) {
   try {
     const apiKey = process.env.CLAUDE_API_KEY;
+
     if (!apiKey) {
       return {
         statusCode: 500,
@@ -27,17 +28,34 @@ export async function handler(event) {
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText);
+    }
+
     const data = await response.json();
+
+    // ✅ EXTRAÇÃO CORRETA DO TEXTO DO CLAUDE
+    const reply =
+      data?.content?.find((c) => c.type === "text")?.text ||
+      "Não consegui gerar uma resposta agora.";
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reply }),
     };
   } catch (err) {
+    console.error("Erro no handler:", err);
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Erro ao processar a mensagem" }),
+      body: JSON.stringify({
+        error: "Erro ao processar a mensagem",
+      }),
     };
   }
 }
+``
