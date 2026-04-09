@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 export async function handler(event) {
   try {
     const apiKey = process.env.CLAUDE_API_KEY;
@@ -5,6 +7,7 @@ export async function handler(event) {
     if (!apiKey) {
       return {
         statusCode: 500,
+        headers: cors(),
         body: JSON.stringify({ error: "CLAUDE_API_KEY não configurada" }),
       };
     }
@@ -35,27 +38,34 @@ export async function handler(event) {
 
     const data = await response.json();
 
-    // ✅ EXTRAÇÃO CORRETA DO TEXTO DO CLAUDE
     const reply =
       data?.content?.find((c) => c.type === "text")?.text ||
       "Não consegui gerar uma resposta agora.";
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: cors(),
       body: JSON.stringify({ reply }),
     };
   } catch (err) {
-    console.error("Erro no handler:", err);
+    console.error("Erro real no handler:", err);
 
     return {
       statusCode: 500,
+      headers: cors(),
       body: JSON.stringify({
-        error: "Erro ao processar a mensagem",
+        error: err.message || "Erro ao processar mensagem",
       }),
     };
   }
+}
+
+function cors() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json",
+  };
 }
 ``
