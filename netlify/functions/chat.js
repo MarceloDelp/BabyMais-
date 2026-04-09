@@ -1,16 +1,15 @@
 export async function handler(event) {
   try {
     const apiKey = process.env.CLAUDE_API_KEY;
-
     if (!apiKey) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "API key não configurada" }),
+        body: JSON.stringify({ error: "CLAUDE_API_KEY não configurada" }),
       };
     }
 
-    const body = event.body ? JSON.parse(event.body) : {};
-    const userMessage = body.message || "Olá";
+    const body = JSON.parse(event.body || "{}");
+    const { system = "", messages = [] } = body;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -23,44 +22,22 @@ export async function handler(event) {
         model: "claude-3-haiku-20240307",
         max_tokens: 500,
         temperature: 0.4,
-        system: `
-Você é um assistente informativo voltado a cuidadores de crianças na primeira infância (0 a 6 anos).
-
-Regras importantes:
-- Ofereça apenas orientações gerais e educativas.
-- Não faça diagnósticos.
-- Não dê conselhos médicos.
-- Não substitua profissionais de saúde ou educação.
-- Use linguagem clara, acolhedora e responsável.
-- Sempre incentive a busca por profissionais em caso de dúvidas específicas.
-        `.trim(),
-        messages: [
-          {
-            role: "user",
-            content: userMessage,
-          },
-        ],
+        system,
+        messages,
       }),
     });
 
     const data = await response.json();
-    const text =
-      data?.content?.[0]?.text ||
-      "Não consegui gerar uma resposta agora.";
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        reply: text,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     };
-  } catch (error) {
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Erro interno ao processar a resposta" }),
+      body: JSON.stringify({ error: "Erro ao processar a mensagem" }),
     };
   }
 }
