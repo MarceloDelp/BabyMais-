@@ -1,71 +1,411 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Assistente da Primeira Infância</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 40px auto;
-    }
-    textarea {
-      width: 100%;
-      height: 80px;
-      margin-bottom: 10px;
-    }
-    button {
-      padding: 10px 15px;
-      cursor: pointer;
-    }
-    .resposta {
-      margin-top: 20px;
-      background: #f4f4f4;
-      padding: 15px;
-      border-radius: 5px;
-      white-space: pre-wrap;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Bebê+</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:0}
+.phone{width:100%;max-width:390px;min-height:100vh;background:#fff;display:flex;flex-direction:column;position:relative;margin:0 auto}
+.statusbar{background:#f9f9f6;padding:10px 20px 6px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e3}
+.statusbar span{font-size:12px;color:#888;font-weight:500}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+.topbar{padding:14px 18px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0eb;background:#fff}
+.topbar-title{font-size:16px;font-weight:600;color:#1a1a1a;flex:1;text-align:center}
+.back-btn{font-size:14px;color:#1D9E75;cursor:pointer;padding:4px 0;min-width:44px}
+.body{flex:1;padding:16px;overflow-y:auto;background:#fff}
+.navbar{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #f0f0eb;background:#fff;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{display:flex;flex-direction:column;align-items:center;padding:10px 4px 10px;cursor:pointer;gap:4px}
+.nav-label{font-size:10px;color:#aaa}
+.nav-item.active .nav-label{color:#0F6E56;font-weight:600}
+.nav-svg{width:22px;height:22px}
+
+.disclaimer{background:#E1F5EE;border-radius:10px;padding:10px 12px;font-size:12px;color:#0F6E56;line-height:1.5;margin-bottom:14px;border:1px solid #9FE1CB}
+.greeting{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:2px}
+.sub{font-size:14px;color:#888;margin-bottom:18px}
+.section-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.qcard{background:#f9f9f6;border:1px solid #eee;border-radius:14px;padding:14px;cursor:pointer;transition:background .15s;-webkit-user-select:none;user-select:none}
+.qcard:active{background:#f0f0eb}
+.qcard-icon{width:32px;height:32px;border-radius:10px;margin-bottom:10px}
+.qcard-icon.teal{background:#9FE1CB}
+.qcard-icon.purple{background:#CECBF6}
+.qcard-icon.amber{background:#FAC775}
+.qcard-icon.coral{background:#F5C4B3}
+.qcard-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.qcard-sub{font-size:12px;color:#888}
+
+.age-strip{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px}
+.age-strip::-webkit-scrollbar{display:none}
+.age-pill{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid #e0e0da;color:#888;background:#f9f9f6;cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-user-select:none;user-select:none;flex-shrink:0}
+.age-pill.active{background:#E1F5EE;border-color:#5DCAA5;color:#0F6E56;font-weight:600}
+
+.content-card{background:#f9f9f6;border:1px solid #eee;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
+.content-card:active{background:#f0f0eb}
+.content-card-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.content-card-sub{font-size:12px;color:#888}
+
+.chat-area{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f9f9f6;overflow-y:auto}
+.msg{max-width:85%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.6;word-break:break-word}
+.msg.ai{background:#fff;border:1px solid #eee;color:#1a1a1a;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.user{background:#1D9E75;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg.alert{background:#FCEBEB;border:1px solid #F09595;color:#7a1f1f;align-self:stretch;border-radius:12px;max-width:100%;font-size:13px;line-height:1.6}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;background:#fff;border-top:1px solid #f0f0eb}
+.chip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid #e0e0da;color:#666;background:#f9f9f6;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.chip:active{background:#E1F5EE;border-color:#5DCAA5;color:#0F6E56}
+
+.chat-input-row{display:flex;gap:8px;padding:10px 14px 14px;background:#fff;align-items:center;border-top:1px solid #f0f0eb}
+.chat-input{flex:1;font-size:14px;border:1px solid #e0e0da;border-radius:24px;padding:10px 16px;background:#f9f9f6;color:#1a1a1a;outline:none;-webkit-appearance:none}
+.chat-input:focus{border-color:#5DCAA5;background:#fff}
+.send-btn{width:40px;height:40px;border-radius:50%;background:#1D9E75;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn:active{background:#0F6E56}
+
+.ped-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.ped-avatar{width:44px;height:44px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0F6E56;flex-shrink:0}
+.ped-info{flex:1}
+.ped-name{font-size:14px;font-weight:600;color:#1a1a1a}
+.ped-dist{font-size:12px;color:#888;margin-top:2px}
+.ped-btn{font-size:12px;padding:7px 12px;border-radius:10px;background:#E1F5EE;color:#0F6E56;border:none;cursor:pointer;font-weight:600;white-space:nowrap}
+.ped-btn:active{background:#9FE1CB}
+
+.map-placeholder{background:#f0f7f4;border:1px solid #9FE1CB;border-radius:14px;height:140px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.map-placeholder span{font-size:13px;color:#0F6E56}
+.map-dot{width:12px;height:12px;border-radius:50%;background:#1D9E75}
+
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#0F6E56;margin:0 auto 10px}
+.profile-name{font-size:18px;font-weight:700;text-align:center;color:#1a1a1a;margin-bottom:4px}
+.profile-age{font-size:14px;color:#888;text-align:center;margin-bottom:20px}
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0eb;font-size:14px}
+.profile-row:last-child{border-bottom:none}
+.profile-key{color:#888}
+.profile-val{color:#1a1a1a;font-weight:600}
+
+.typing-row{display:flex;gap:5px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:18px;border-bottom-left-radius:4px;align-self:flex-start}
+.dot{width:7px;height:7px;border-radius:50%;background:#ccc;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.api-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;background:#E1F5EE;color:#0F6E56;font-weight:600;margin-left:6px;vertical-align:middle}
+.ped-action-btn{display:block;width:100%;margin-top:10px;font-size:13px;padding:10px;border-radius:10px;background:#FCEBEB;border:1px solid #F09595;color:#A32D2D;cursor:pointer;font-weight:600;text-align:center}
+</style>
 </head>
-
 <body>
-  <h1>🧸 Assistente da Primeira Infância</h1>
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span><span>Bebê+</span><span>100%</span>
+  </div>
 
-  <p>
-    Faça uma pergunta sobre cuidados, desenvolvimento ou rotina na primeira infância
-    (0 a 6 anos).
-  </p>
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="body">
+      <div class="disclaimer">Este app oferece apenas informações educativas. Não substitui um pediatra ou profissional de saúde.</div>
+      <div class="greeting">Oi, Ana!</div>
+      <div class="sub">Lucas tem 8 meses hoje</div>
+      <div class="section-label">Acesso rápido</div>
+      <div class="quick-grid">
+        <div class="qcard" onclick="goChat('Meu bebê não está dormindo bem, o que posso fazer?')">
+          <div class="qcard-icon teal"></div>
+          <div class="qcard-title">Sono</div>
+          <div class="qcard-sub">Rotinas e dicas</div>
+        </div>
+        <div class="qcard" onclick="goChat('Dúvidas sobre introdução alimentar para bebê de 8 meses')">
+          <div class="qcard-icon amber"></div>
+          <div class="qcard-title">Alimentação</div>
+          <div class="qcard-sub">Intro alimentar</div>
+        </div>
+        <div class="qcard" onclick="goChat('Como lidar com choro excessivo e birras?')">
+          <div class="qcard-icon purple"></div>
+          <div class="qcard-title">Comportamento</div>
+          <div class="qcard-sub">Birras e limites</div>
+        </div>
+        <div class="qcard" onclick="showScreen('ped')">
+          <div class="qcard-icon coral"></div>
+          <div class="qcard-title">Preciso de ajuda</div>
+          <div class="qcard-sub">Pediatras perto</div>
+        </div>
+      </div>
+      <div class="section-label">Conteúdo por faixa etária</div>
+      <div class="age-strip">
+        <div class="age-pill">0–6m</div>
+        <div class="age-pill active">6–12m</div>
+        <div class="age-pill">1–2a</div>
+        <div class="age-pill">2–4a</div>
+        <div class="age-pill">4–6a</div>
+      </div>
+      <div class="content-card" onclick="goChat('Me explica sobre introdução alimentar aos 6 meses')">
+        <div class="content-card-title">Introdução alimentar aos 6 meses</div>
+        <div class="content-card-sub">Alimentos, texturas e ritmo do bebê</div>
+      </div>
+      <div class="content-card" onclick="goChat('Como organizar a rotina de sono de um bebê de 8 meses?')">
+        <div class="content-card-title">Sono: 2 cochilos por dia</div>
+        <div class="content-card-sub">O que esperar nessa fase</div>
+      </div>
+      <div class="content-card" onclick="goChat('Quais são os marcos do desenvolvimento de um bebê de 8 meses?')">
+        <div class="content-card-title">Marcos do desenvolvimento</div>
+        <div class="content-card-sub">O que esperar dos 6 aos 12 meses</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item active" onclick="showScreen('home')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="8" height="10" rx="2" fill="#1D9E75"/><rect x="13" y="6" width="8" height="15" rx="2" fill="#1D9E75"/></svg>
+        <span class="nav-label" style="color:#0F6E56;font-weight:600">Início</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('chat')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="4" stroke="#bbb" stroke-width="1.5"/><path d="M7 20l2.5-3h5l2.5 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        <span class="nav-label">Chat</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('ped')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+        <span class="nav-label">Pediatras</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('profile')">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#bbb" stroke-width="1.5"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#bbb" stroke-width="1.5" fill="none"/></svg>
+        <span class="nav-label">Perfil</span>
+      </div>
+    </div>
+  </div>
 
-  <textarea id="pergunta" placeholder="Ex: Meu filho de 3 anos gosta pouco de brincar com outras crianças. Isso é comum?"></textarea>
+  <!-- CHAT -->
+  <div id="screen-chat" class="screen">
+    <div class="topbar">
+      <span class="back-btn" onclick="showScreen('home')">&#8592; Voltar</span>
+      <span class="topbar-title">Assistente <span class="api-badge">Claude</span></span>
+      <span style="min-width:44px"></span>
+    </div>
+    <div class="chat-area" id="chat-messages">
+      <div class="msg ai">Oi, Ana! Estou aqui para te apoiar com o Lucas. O que está acontecendo?</div>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="sendMsg('Meu bebê não está dormindo bem')">Sono ruim</div>
+      <div class="chip" onclick="sendMsg('Está com febre')">Febre</div>
+      <div class="chip" onclick="sendMsg('Não quer comer nada')">Não come</div>
+      <div class="chip" onclick="sendMsg('Muita birra hoje')">Birra</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Escreva sua dúvida..." onkeydown="if(event.key==='Enter')sendFromInput()"/>
+      <button class="send-btn" onclick="sendFromInput()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9l12-6-5 6 5 6L2 9z" fill="#fff"/></svg>
+      </button>
+    </div>
+  </div>
 
-  <button onclick="enviarPergunta()">Perguntar</button>
+  <!-- PEDIATRAS -->
+  <div id="screen-ped" class="screen">
+    <div class="topbar">
+      <span class="back-btn" onclick="showScreen('home')">&#8592; Voltar</span>
+      <span class="topbar-title">Pediatras próximos</span>
+      <span style="min-width:44px"></span>
+    </div>
+    <div class="body">
+      <div class="disclaimer">Lista baseada no Google Places. Não representa indicação médica.</div>
+      <div class="map-placeholder">
+        <div class="map-dot"></div>
+        <span>Sua localização ativada</span>
+      </div>
+      <div class="section-label">Os 3 mais próximos</div>
+      <div class="ped-card">
+        <div class="ped-avatar">DS</div>
+        <div class="ped-info"><div class="ped-name">Dra. Sandra Melo</div><div class="ped-dist">320 m — Clínica Vida</div></div>
+        <button class="ped-btn">Ver mapa</button>
+      </div>
+      <div class="ped-card">
+        <div class="ped-avatar">RP</div>
+        <div class="ped-info"><div class="ped-name">Dr. Rafael Pinto</div><div class="ped-dist">780 m — UPA Centro</div></div>
+        <button class="ped-btn">Ver mapa</button>
+      </div>
+      <div class="ped-card">
+        <div class="ped-avatar">CN</div>
+        <div class="ped-info"><div class="ped-name">Dra. Carla Nunes</div><div class="ped-dist">1,2 km — Consultório</div></div>
+        <button class="ped-btn">Ver mapa</button>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="showScreen('home')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="8" height="10" rx="2" stroke="#bbb" stroke-width="1.5"/><rect x="13" y="6" width="8" height="15" rx="2" stroke="#bbb" stroke-width="1.5"/></svg><span class="nav-label">Início</span></div>
+      <div class="nav-item" onclick="showScreen('chat')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="4" stroke="#bbb" stroke-width="1.5"/><path d="M7 20l2.5-3h5l2.5 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="nav-label">Chat</span></div>
+      <div class="nav-item active" onclick="showScreen('ped')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="5" fill="#1D9E75"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="#1D9E75"/></svg><span class="nav-label" style="color:#0F6E56;font-weight:600">Pediatras</span></div>
+      <div class="nav-item" onclick="showScreen('profile')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#bbb" stroke-width="1.5"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#bbb" stroke-width="1.5" fill="none"/></svg><span class="nav-label">Perfil</span></div>
+    </div>
+  </div>
 
-  <div id="resposta" class="resposta"></div>
+  <!-- PERFIL -->
+  <div id="screen-profile" class="screen">
+    <div class="topbar">
+      <span class="back-btn" onclick="showScreen('home')">&#8592; Voltar</span>
+      <span class="topbar-title">Perfil</span>
+      <span style="min-width:44px"></span>
+    </div>
+    <div class="body">
+      <div class="profile-avatar">L</div>
+      <div class="profile-name">Lucas</div>
+      <div class="profile-age">8 meses</div>
+      <div class="profile-row"><span class="profile-key">Idade</span><span class="profile-val">8 meses</span></div>
+      <div class="profile-row"><span class="profile-key">Sexo</span><span class="profile-val">Masculino</span></div>
+      <div class="profile-row"><span class="profile-key">Responsável</span><span class="profile-val">Ana</span></div>
+      <div class="profile-row"><span class="profile-key">Faixa ativa</span><span class="profile-val">6–12 meses</span></div>
+      <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+        <button style="width:100%;font-size:14px;padding:14px;border-radius:12px;border:1px solid #e0e0da;background:#f9f9f6;color:#1a1a1a;cursor:pointer;font-weight:600">Editar perfil</button>
+        <button style="width:100%;font-size:14px;padding:14px;border-radius:12px;border:1px solid #F09595;background:#FCEBEB;color:#A32D2D;cursor:pointer;font-weight:600">Apagar meus dados</button>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item" onclick="showScreen('home')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="8" height="10" rx="2" stroke="#bbb" stroke-width="1.5"/><rect x="13" y="6" width="8" height="15" rx="2" stroke="#bbb" stroke-width="1.5"/></svg><span class="nav-label">Início</span></div>
+      <div class="nav-item" onclick="showScreen('chat')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="4" stroke="#bbb" stroke-width="1.5"/><path d="M7 20l2.5-3h5l2.5 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="nav-label">Chat</span></div>
+      <div class="nav-item" onclick="showScreen('ped')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#bbb" stroke-width="1.5" fill="none"/></svg><span class="nav-label">Pediatras</span></div>
+      <div class="nav-item active" onclick="showScreen('profile')"><svg class="nav-svg" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#1D9E75"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="#1D9E75"/></svg><span class="nav-label" style="color:#0F6E56;font-weight:600">Perfil</span></div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    async function enviarPergunta() {
-      const pergunta = document.getElementById("pergunta").value;
-      const respostaEl = document.getElementById("resposta");
+<script>
+const CHILD = { name: 'Lucas', ageMonths: 8 };
+const history = [];
 
-      respostaEl.textContent = "Pensando...";
+const SYSTEM_PROMPT = `Você é um assistente de apoio parental chamado Bebê+, para pais e responsáveis de crianças de 0 a 6 anos.
 
-      try {
-        const res = await fetch("/.netlify/functions/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: pergunta
-          })
-        });
+CRIANÇA: ${CHILD.name}, ${CHILD.ageMonths} meses.
 
-        const data = await res.json();
-        respostaEl.textContent = data.reply || "Não foi possível obter uma resposta.";
-      } catch (e) {
-        respostaEl.textContent = "Erro ao se comunicar com o assistente.";
-      }
+REGRAS OBRIGATÓRIAS:
+- NUNCA faça diagnósticos médicos.
+- NUNCA prescreva medicamentos ou tratamentos.
+- NUNCA diga que substitui um médico.
+- Use linguagem simples, calorosa e empática. Sem termos técnicos.
+- Responda em no máximo 3 parágrafos curtos.
+- Normalize as inseguranças dos pais — eles estão fazendo o melhor que podem.
+- Sempre finalize com um lembrete gentil de que em caso de dúvida, um pediatra é o melhor caminho.`;
+
+const EMERGENCY_WORDS = [
+  'convuls','desmai','parou de respirar','sem respirar','nao respira','não respira',
+  'inconsciente','roxo','azulado','engasgou','engasgando','sangramento','sangue muito',
+  'nao acorda','não acorda','rigidez no pescoco','rigidez no pescoço'
+];
+
+const HIGH_RISK_WORDS = [
+  'febre','febril','temperatura alta','38','39','40','41',
+  'vomitando muito','diarreia forte','mancha roxa','fontanela',
+  'moleira abaulada','choro inconsolavel','choro inconsolável'
+];
+
+function normalize(text) {
+  return text.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ');
+}
+
+function checkRisk(text) {
+  const t = normalize(text);
+  if (EMERGENCY_WORDS.some(w => t.includes(normalize(w)))) return 'EMERGENCY';
+  if (HIGH_RISK_WORDS.some(w => t.includes(normalize(w)))) return 'HIGH';
+  return 'OK';
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function goChat(text) {
+  showScreen('chat');
+  setTimeout(() => sendMsg(text), 300);
+}
+
+function appendMsg(cls, html) {
+  const area = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  div.innerHTML = html;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const area = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'typing-row';
+  div.id = 'typing-indicator';
+  div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+async function sendMsg(text) {
+  if (!text.trim()) return;
+  appendMsg('user', text);
+  history.push({ role: 'user', content: text });
+
+  const risk = checkRisk(text);
+
+  if (risk === 'EMERGENCY') {
+    const alertDiv = appendMsg('alert',
+      '<strong>Isso pode ser uma emergência.</strong><br><br>Ligue imediatamente para o <strong>SAMU (192)</strong> ou vá ao pronto-socorro mais próximo. Não espere.');
+    const btn = document.createElement('button');
+    btn.textContent = 'Ver pediatras próximos';
+    btn.className = 'ped-action-btn';
+    btn.onclick = () => showScreen('ped');
+    alertDiv.appendChild(btn);
+    return;
+  }
+
+  let extraInstruction = '';
+  if (risk === 'HIGH') {
+    extraInstruction = '\n\nIMPORTANTE: a mensagem contém um sinal de atenção médica (ex: febre, vômito intenso). Responda de forma breve e empática, e oriente claramente a buscar um pediatra hoje. Não se estenda em explicações educativas agora.';
+  }
+
+  showTyping();
+
+  try {
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT + extraInstruction,
+        messages: history
+      })
+    });
+
+    const data = await res.json();
+    hideTyping();
+
+    const reply = data?.content?.[0]?.text || 'Desculpa, tive um problema ao responder. Tente novamente.';
+    history.push({ role: 'assistant', content: reply });
+
+    const aiDiv = appendMsg('ai', reply.replace(/\n/g, '<br>'));
+
+    if (risk === 'HIGH') {
+      const pedBtn = document.createElement('button');
+      pedBtn.textContent = 'Ver pediatras próximos';
+      pedBtn.className = 'ped-action-btn';
+      pedBtn.style.background = '#E1F5EE';
+      pedBtn.style.borderColor = '#5DCAA5';
+      pedBtn.style.color = '#0F6E56';
+      pedBtn.onclick = () => showScreen('ped');
+      aiDiv.appendChild(pedBtn);
     }
-  </script>
+
+  } catch(e) {
+    hideTyping();
+    appendMsg('ai', 'Não consegui me conectar agora. Verifique sua conexão e tente de novo.');
+  }
+}
+
+function sendFromInput() {
+  const input = document.getElementById('chat-input');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  sendMsg(val);
+}
+</script>
 </body>
 </html>
