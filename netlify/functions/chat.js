@@ -50,15 +50,14 @@ export async function handler(event) {
       statusCode: 200,
       body: JSON.stringify({ reply }),
     };
-  } catch (err) {
-    console.error("Erro real:", err.message);
+ 
+atch (err) {
+  console.error("ERRO REAL NO BACKEND:", err);
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        reply: "Desculpa, tive um problema ao responder. Tente novamente.",
-      }),
-    };
-  }
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      error: err.message
+    }),
+  };
 }
-``
